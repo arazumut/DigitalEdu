@@ -1,0 +1,440 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ course.title }} - EduPlus{% endblock %}
+
+{% block content %}
+<section class="course-detail-header">
+    <div class="container">
+        <div class="course-header-content">
+            <div class="course-breadcrumb">
+                <a href="{% url 'home' %}">Ana Sayfa</a> &gt;
+                <a href="{% url 'course_list' %}">Kurslar</a> &gt;
+                <a href="{% url 'course_category' course.category.slug %}">{{ course.category.name }}</a> &gt;
+                <span>{{ course.title }}</span>
+            </div>
+            
+            <h1 class="course-title">{{ course.title }}</h1>
+            
+            <div class="course-meta">
+                <div class="course-instructor">
+                    {% if course.instructor.profile_image %}
+                        <img src="{{ course.instructor.profile_image.url }}" alt="{{ course.instructor.get_full_name }}">
+                    {% else %}
+                        <img src="{% static 'images/profile-placeholder.jpg' %}" alt="{{ course.instructor.get_full_name }}">
+                    {% endif %}
+                    <span>{{ course.instructor.get_full_name }}</span>
+                </div>
+                
+                <div class="course-ratings">
+                    <div class="stars">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= avg_rating %}
+                                <i class="fas fa-star"></i>
+                            {% elif forloop.counter <= avg_rating|add:"0.5" %}
+                                <i class="fas fa-star-half-alt"></i>
+                            {% else %}
+                                <i class="far fa-star"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <span>({{ reviews.count }} değerlendirme)</span>
+                </div>
+                
+                <div class="course-stats">
+                    <span><i class="far fa-user"></i> {{ course.enrollments.count }} öğrenci</span>
+                    <span><i class="far fa-clock"></i> {{ course.duration }} saat</span>
+                    <span><i class="far fa-calendar-alt"></i> Son güncelleme: {{ course.updated_at|date:"d F Y" }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="course-detail-content">
+    <div class="container">
+        <div class="course-detail-grid">
+            <div class="course-main-content">
+                <div class="course-image">
+                    {% if course.image %}
+                        <img src="{{ course.image.url }}" alt="{{ course.title }}">
+                    {% else %}
+                        <img src="{% static 'images/course-placeholder.jpg' %}" alt="{{ course.title }}">
+                    {% endif %}
+                </div>
+                
+                <div class="course-tabs">
+                    <div class="tab-buttons">
+                        <button class="tab-btn active" data-tab="overview">Genel Bakış</button>
+                        <button class="tab-btn" data-tab="curriculum">Müfredat</button>
+                        <button class="tab-btn" data-tab="instructor">Eğitmen</button>
+                        <button class="tab-btn" data-tab="reviews">Değerlendirmeler</button>
+                    </div>
+                    
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="overview">
+                            <h3>Kurs Hakkında</h3>
+                            <div class="course-description">
+                                {{ course.description|linebreaks }}
+                            </div>
+                            
+                            <h3>Neler Öğreneceksiniz?</h3>
+                            <ul class="course-features">
+                                {% for item in course.what_will_learn_list %}
+                                    <li><i class="fas fa-check"></i> {{ item }}</li>
+                                {% endfor %}
+                            </ul>
+                            
+                            <h3>Gereksinimler</h3>
+                            <ul class="course-requirements">
+                                {% for item in course.requirements_list %}
+                                    <li><i class="fas fa-circle"></i> {{ item }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        
+                        <div class="tab-pane" id="curriculum">
+                            <h3>Kurs İçeriği</h3>
+                            
+                            {% if sections %}
+                                <div class="course-sections">
+                                    {% for section in sections %}
+                                        <div class="section-item">
+                                            <div class="section-header" onclick="toggleSection({{ section.id }})">
+                                                <h4>{{ section.title }}</h4>
+                                                <span>{{ section.lessons.count }} ders • {{ section.duration }} dk</span>
+                                                <i class="fas fa-chevron-down"></i>
+                                            </div>
+                                            
+                                            <div class="section-content" id="section-{{ section.id }}">
+                                                {% for lesson in section.lessons.all %}
+                                                    <div class="lesson-item">
+                                                        <div class="lesson-title">
+                                                            <i class="{% if lesson.content_type == 'video' %}fas fa-play-circle{% elif lesson.content_type == 'document' %}fas fa-file-alt{% elif lesson.content_type == 'quiz' %}fas fa-question-circle{% else %}fas fa-book{% endif %}"></i>
+                                                            <span>{{ lesson.title }}</span>
+                                                        </div>
+                                                        <span class="lesson-duration">{{ lesson.duration }} dk</span>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p>Bu kurs için henüz içerik eklenmemiştir.</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="tab-pane" id="instructor">
+                            <div class="instructor-profile">
+                                <div class="instructor-header">
+                                    {% if instructor.profile_image %}
+                                        <img src="{{ instructor.profile_image.url }}" alt="{{ instructor.get_full_name }}">
+                                    {% else %}
+                                        <img src="{% static 'images/profile-placeholder.jpg' %}" alt="{{ instructor.get_full_name }}">
+                                    {% endif %}
+                                    
+                                    <div class="instructor-info">
+                                        <h3>{{ instructor.get_full_name }}</h3>
+                                        <p>{{ instructor.title }}</p>
+                                        
+                                        <div class="instructor-stats">
+                                            <span><i class="fas fa-user-graduate"></i> {{ instructor.courses.count }} kurs</span>
+                                            <span><i class="fas fa-users"></i> {{ instructor.total_students }} öğrenci</span>
+                                            <span><i class="fas fa-star"></i> {{ instructor.average_rating|default:"0" }} ortalama puan</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="instructor-bio">
+                                    {{ instructor.bio|linebreaks }}
+                                </div>
+                                
+                                <a href="{% url 'instructor_courses' instructor.username %}" class="btn btn-outline">Tüm Kurslarını Gör</a>
+                            </div>
+                        </div>
+                        
+                        <div class="tab-pane" id="reviews">
+                            <h3>Öğrenci Değerlendirmeleri</h3>
+                            
+                            <div class="rating-summary">
+                                <div class="average-rating">
+                                    <h2>{{ avg_rating|floatformat:1 }}</h2>
+                                    <div class="stars">
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= avg_rating %}
+                                                <i class="fas fa-star"></i>
+                                            {% elif forloop.counter <= avg_rating|add:"0.5" %}
+                                                <i class="fas fa-star-half-alt"></i>
+                                            {% else %}
+                                                <i class="far fa-star"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    <p>{{ reviews.count }} değerlendirme</p>
+                                </div>
+                                
+                                <div class="rating-bars">
+                                    {% for i in "54321" %}
+                                        <div class="rating-bar">
+                                            <span>{{ i }} yıldız</span>
+                                            <div class="progress">
+                                                <div class="progress-bar" style="width: {{ reviews.filter(rating=i).count|default:0|divisibleby:reviews.count|default:1|floatformat:0 }}%"></div>
+                                            </div>
+                                            <span>{{ reviews.filter(rating=i).count }}</span>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            {% if user.is_authenticated and is_enrolled and not user_review %}
+                                <div class="write-review">
+                                    <h4>Değerlendirme Yazın</h4>
+                                    <form method="post" action="{% url 'add_review' course.slug %}">
+                                        {% csrf_token %}
+                                        <div class="rating-select">
+                                            <label>Puanınız:</label>
+                                            <div class="star-rating">
+                                                <input type="radio" id="star5" name="rating" value="5" required>
+                                                <label for="star5"><i class="far fa-star"></i></label>
+                                                
+                                                <input type="radio" id="star4" name="rating" value="4">
+                                                <label for="star4"><i class="far fa-star"></i></label>
+                                                
+                                                <input type="radio" id="star3" name="rating" value="3">
+                                                <label for="star3"><i class="far fa-star"></i></label>
+                                                
+                                                <input type="radio" id="star2" name="rating" value="2">
+                                                <label for="star2"><i class="far fa-star"></i></label>
+                                                
+                                                <input type="radio" id="star1" name="rating" value="1">
+                                                <label for="star1"><i class="far fa-star"></i></label>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label for="comment">Yorumunuz:</label>
+                                            <textarea name="comment" id="comment" rows="4" required></textarea>
+                                        </div>
+                                        
+                                        <button type="submit" class="btn">Değerlendirme Gönder</button>
+                                    </form>
+                                </div>
+                            {% endif %}
+                            
+                            <div class="review-list">
+                                {% if reviews %}
+                                    {% for review in reviews %}
+                                        <div class="review-item">
+                                            <div class="review-author">
+                                                {% if review.student.profile_image %}
+                                                    <img src="{{ review.student.profile_image.url }}" alt="{{ review.student.get_full_name }}">
+                                                {% else %}
+                                                    <img src="{% static 'images/profile-placeholder.jpg' %}" alt="{{ review.student.get_full_name }}">
+                                                {% endif %}
+                                                
+                                                <div class="author-info">
+                                                    <h4>{{ review.student.get_full_name }}</h4>
+                                                    <div class="stars">
+                                                        {% for i in "12345" %}
+                                                            {% if forloop.counter <= review.rating %}
+                                                                <i class="fas fa-star"></i>
+                                                            {% else %}
+                                                                <i class="far fa-star"></i>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </div>
+                                                    <span class="review-date">{{ review.created_at|date:"d F Y" }}</span>
+                                                </div>
+                                                
+                                                {% if user == review.student %}
+                                                    <div class="review-actions">
+                                                        <a href="{% url 'edit_review' course.slug review.id %}" class="btn-sm">Düzenle</a>
+                                                        <a href="{% url 'delete_review' course.slug review.id %}" class="btn-sm btn-danger" onclick="return confirm('Bu değerlendirmeyi silmek istediğinize emin misiniz?');">Sil</a>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            
+                                            <div class="review-content">
+                                                <p>{{ review.comment }}</p>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <p>Bu kurs için henüz değerlendirme yapılmamıştır.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="course-sidebar">
+                <div class="course-card">
+                    <div class="course-price">
+                        <h2>₺{{ course.price }}</h2>
+                    </div>
+                    
+                    {% if is_enrolled %}
+                        <a href="#" class="btn btn-success btn-full">Kursa Git</a>
+                    {% else %}
+                        <a href="{% url 'course_enroll' course.slug %}" class="btn btn-primary btn-full">Kursa Kaydol</a>
+                    {% endif %}
+                    
+                    <div class="course-includes">
+                        <h4>Bu Kurs Şunları İçerir:</h4>
+                        <ul>
+                            <li><i class="fas fa-play-circle"></i> {{ course.total_video_hours }} saat video</li>
+                            <li><i class="fas fa-file-alt"></i> {{ course.total_articles }} makale</li>
+                            <li><i class="fas fa-infinity"></i> Ömür boyu erişim</li>
+                            <li><i class="fas fa-mobile-alt"></i> Mobil ve TV üzerinden erişim</li>
+                            <li><i class="fas fa-certificate"></i> Tamamlama sertifikası</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="related-courses">
+                    <h3>Benzer Kurslar</h3>
+                    
+                    {% if related_courses %}
+                        <div class="related-course-list">
+                            {% for rc in related_courses %}
+                                <div class="related-course-item">
+                                    <div class="rc-image">
+                                        {% if rc.image %}
+                                            <img src="{{ rc.image.url }}" alt="{{ rc.title }}">
+                                        {% else %}
+                                            <img src="{% static 'images/course-placeholder.jpg' %}" alt="{{ rc.title }}">
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="rc-info">
+                                        <h4><a href="{% url 'course_detail' rc.slug %}">{{ rc.title }}</a></h4>
+                                        <div class="rc-meta">
+                                            <span>₺{{ rc.price }}</span>
+                                            <div class="rc-rating">
+                                                <i class="fas fa-star"></i>
+                                                <span>{{ rc.average_rating|default:"0" }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p>Benzer kurs bulunamadı.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Tab değiştirme fonksiyonu
+    document.addEventListener('DOMContentLoaded', function() {
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabPanes = document.querySelectorAll('.tab-pane');
+        
+        tabButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Aktif tab'ı değiştir
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                
+                // İlgili içeriği göster
+                const tabId = this.dataset.tab;
+                tabPanes.forEach(pane => {
+                    pane.classList.remove('active');
+                    if (pane.id === tabId) {
+                        pane.classList.add('active');
+                    }
+                });
+            });
+        });
+    });
+    
+    // Bölüm açma/kapama fonksiyonu
+    function toggleSection(sectionId) {
+        const sectionContent = document.getElementById('section-' + sectionId);
+        sectionContent.classList.toggle('open');
+        
+        const icon = sectionContent.previousElementSibling.querySelector('i');
+        if (sectionContent.classList.contains('open')) {
+            icon.classList.replace('fa-chevron-down', 'fa-chevron-up');
+        } else {
+            icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
+        }
+    }
+    
+    // Yıldız derecelendirme işlevi
+    document.addEventListener('DOMContentLoaded', function() {
+        const starLabels = document.querySelectorAll('.star-rating label');
+        
+        starLabels.forEach(label => {
+            label.addEventListener('mouseover', function() {
+                // Yıldız hover efekti
+                let currentStar = this;
+                let previousStar = this.previousElementSibling;
+                
+                // Mevcut ve önceki tüm yıldızları doldur
+                while (currentStar) {
+                    currentStar.querySelector('i').classList.replace('far', 'fas');
+                    
+                    if (previousStar && previousStar.tagName === 'LABEL') {
+                        currentStar = previousStar;
+                        previousStar = previousStar.previousElementSibling;
+                    } else {
+                        break;
+                    }
+                }
+            });
+            
+            label.addEventListener('mouseout', function() {
+                // Yıldızları sıfırla
+                const selectedRating = document.querySelector('.star-rating input:checked');
+                const allStars = document.querySelectorAll('.star-rating label i');
+                
+                if (selectedRating) {
+                    // Seçili yıldızları doldur
+                    const rating = parseInt(selectedRating.value);
+                    allStars.forEach((star, index) => {
+                        if (index < rating) {
+                            star.classList.replace('far', 'fas');
+                        } else {
+                            star.classList.replace('fas', 'far');
+                        }
+                    });
+                } else {
+                    // Hiçbir yıldız seçili değilse tümünü boşalt
+                    allStars.forEach(star => {
+                        star.classList.replace('fas', 'far');
+                    });
+                }
+            });
+            
+            label.addEventListener('click', function() {
+                // Yıldız seçme
+                const input = this.previousElementSibling;
+                input.checked = true;
+                
+                // Tüm yıldızları sıfırla
+                const allStars = document.querySelectorAll('.star-rating label i');
+                allStars.forEach(star => {
+                    star.classList.replace('fas', 'far');
+                });
+                
+                // Seçili yıldıza kadar doldur
+                const rating = parseInt(input.value);
+                allStars.forEach((star, index) => {
+                    if (index < rating) {
+                        star.classList.replace('far', 'fas');
+                    }
+                });
+            });
+        });
+    });
+</script>
+{% endblock %} 

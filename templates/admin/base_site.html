@@ -1,0 +1,469 @@
+{% extends "admin/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | EduPlus Yönetim Paneli{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="{% static 'admin/css/dashboard.css' %}">
+<style>
+    :root {
+        --primary-color: #4a90e2;
+        --secondary-color: #5dbea3;
+        --dark-color: #333;
+        --light-color: #f5f7fa;
+        --gray-color: #e1e5eb;
+        --highlight-color: #ff7846;
+    }
+    
+    /* Header ve Logo Stilleri */
+    #header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, #3a7bc8 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        padding: 16px 40px;
+        height: auto;
+        line-height: normal;
+        position: relative;
+    }
+    
+    #header .header-content {
+        max-width: 1280px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 95%;
+        position: relative;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    
+    @media (max-width: 1366px) {
+        #header .header-content {
+            width: 90%;
+            max-width: 1200px;
+        }
+    }
+    
+    @media (max-width: 992px) {
+        #header .header-content {
+            width: 95%;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        #header {
+            padding: 15px 20px;
+        }
+        
+        #header .header-content {
+            width: 100%;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        #user-tools {
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+    }
+    
+    #branding {
+        display: flex;
+        align-items: center;
+    }
+    
+    #branding h1 {
+        font-weight: 600;
+        color: white;
+        margin: 0;
+        font-size: 20px;
+    }
+    
+    #branding h1 a {
+        color: white;
+        display: flex;
+        align-items: center;
+        transition: all 0.3s ease;
+    }
+    
+    #branding h1 a:hover {
+        color: var(--light-color);
+        text-decoration: none;
+    }
+    
+    #branding h1 a::before {
+        content: "\f19d";
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        margin-right: 12px;
+        font-size: 1.6rem;
+        color: var(--highlight-color);
+    }
+    
+    /* Sidebar Düzenlemeleri */
+    .module h2, .module caption, .inline-group h2 {
+        background: var(--primary-color);
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 12px 15px;
+    }
+    
+    div.breadcrumbs {
+        background: linear-gradient(to right, var(--dark-color), #3c3c3c);
+        padding: 12px 40px;
+        color: var(--light-color);
+        font-size: 14px;
+        border: none;
+    }
+    
+    div.breadcrumbs-container {
+        max-width: 1280px;
+        margin: 0 auto;
+        width: 95%;
+        position: relative;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    
+    @media (max-width: 1366px) {
+        div.breadcrumbs-container {
+            width: 90%;
+            max-width: 1200px;
+        }
+    }
+    
+    @media (max-width: 992px) {
+        div.breadcrumbs-container {
+            width: 95%;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        div.breadcrumbs {
+            padding: 10px 20px;
+        }
+        
+        div.breadcrumbs-container {
+            width: 100%;
+        }
+    }
+    
+    div.breadcrumbs a {
+        color: var(--light-color);
+        transition: color 0.2s ease;
+    }
+    
+    div.breadcrumbs a:hover {
+        color: white;
+        text-decoration: underline;
+    }
+    
+    /* Butonlar */
+    .button, input[type=submit], input[type=button], .submit-row input, a.button {
+        background: var(--primary-color);
+        color: white;
+        border-radius: 4px;
+        padding: 8px 16px;
+        font-weight: 500;
+        border: none;
+        transition: all 0.2s ease;
+    }
+    
+    .button:hover, input[type=submit]:hover, input[type=button]:hover, 
+    .submit-row input:hover, a.button:hover {
+        background: #3a80d2;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    }
+    
+    .button.default, input[type=submit].default, .submit-row input.default {
+        background: var(--secondary-color);
+        font-weight: 600;
+    }
+    
+    .button.default:hover, input[type=submit].default:hover, .submit-row input.default:hover {
+        background: #4caf9a;
+    }
+    
+    /* Tablolar */
+    #changelist-filter h2 {
+        background: var(--dark-color);
+        border-radius: 6px 6px 0 0;
+        padding: 10px 15px;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    #changelist-filter {
+        background: white;
+        border-radius: 6px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    
+    #changelist-filter a {
+        transition: color 0.2s ease;
+    }
+    
+    #changelist-filter a:hover {
+        color: var(--primary-color);
+    }
+    
+    #changelist-filter li.selected a {
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+    
+    .paginator {
+        margin: 15px 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .paginator a:link, .paginator a:visited {
+        background: var(--primary-color);
+        color: white;
+        border-radius: 4px;
+        padding: 6px 12px;
+        margin: 0 3px;
+        transition: all 0.2s ease;
+    }
+    
+    .paginator a:hover {
+        background: #3a80d2;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    }
+    
+    .paginator .this-page {
+        background: var(--secondary-color);
+        color: white;
+        border-radius: 4px;
+        padding: 6px 12px;
+        margin: 0 3px;
+        font-weight: 600;
+    }
+    
+    /* Form Alanları */
+    .form-row {
+        padding: 15px 12px;
+        border-bottom: 1px solid #eee;
+        transition: background-color 0.2s ease;
+    }
+    
+    .form-row:hover {
+        background-color: var(--light-color);
+    }
+    
+    .aligned label {
+        color: var(--dark-color);
+        font-weight: 500;
+    }
+    
+    input, textarea, select, .form-row p, form .button {
+        margin: 2px 0;
+        padding: 8px 12px;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+        transition: all 0.2s ease;
+    }
+    
+    input:focus, textarea:focus, select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+        outline: none;
+    }
+    
+    fieldset.collapsed h2 {
+        background: var(--dark-color);
+    }
+    
+    .dashboard .module table th {
+        width: 100%;
+    }
+    
+    .object-tools {
+        margin-top: 0;
+    }
+    
+    .object-tools a {
+        background-color: var(--dark-color);
+        border-radius: 4px;
+        padding: 6px 12px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    
+    .object-tools a:hover {
+        background-color: var(--primary-color);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Dashboard */
+    .dashboard .module h2 {
+        background: var(--primary-color);
+        border-radius: 8px 8px 0 0;
+        padding: 12px 15px;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .dashboard .module h3 {
+        color: var(--dark-color);
+    }
+    
+    /* Başarı/Hata mesajları */
+    .errornote {
+        background: var(--danger-color);
+        color: white;
+        padding: 12px 15px;
+        border-radius: 4px;
+        border: none;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    
+    .success {
+        background: var(--success-color);
+        color: white;
+        padding: 12px 15px;
+        border-radius: 4px;
+        border: none;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    
+    /* Tablo satırları için hover efekti */
+    .row1, .row2 {
+        transition: background-color 0.2s;
+    }
+    
+    .row1:hover, .row2:hover {
+        background-color: var(--light-color);
+    }
+    
+    /* Kullanıcı araçları */
+    #user-tools {
+        font-size: 13px;
+        font-weight: 400;
+        display: flex;
+        align-items: center;
+    }
+    
+    #user-tools .user-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-color: var(--highlight-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 12px;
+        color: white;
+        font-weight: 600;
+    }
+    
+    #user-tools a {
+        border-bottom: none;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        color: rgba(255, 255, 255, 0.9);
+        margin-left: 12px;
+        padding: 5px 10px;
+        border-radius: 15px;
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    #user-tools a:hover {
+        color: white;
+        background-color: rgba(255, 255, 255, 0.2);
+        border-bottom: none;
+    }
+    
+    #user-tools a:first-child {
+        margin-left: 0;
+    }
+    
+    /* Footer alanı */
+    #footer {
+        padding: 20px 40px;
+        color: var(--dark-color);
+        font-size: 13px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: white;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+        margin-top: 40px;
+    }
+    
+    .footer-links a {
+        color: var(--primary-color);
+        margin-left: 15px;
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+    
+    .footer-links a:hover {
+        color: var(--secondary-color);
+    }
+</style>
+{% endblock %}
+
+{% block header %}
+<div id="header">
+    <div class="header-content">
+        <div id="branding">
+            <h1 id="site-name">
+                <a href="{% url 'admin:index' %}">EduPlus Yönetim Paneli</a>
+            </h1>
+        </div>
+        {% if user.is_authenticated and user.is_staff %}
+        <div id="user-tools">
+            <div class="user-avatar">
+                {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+            </div>
+            <span>Merhaba, <strong>{% firstof user.get_short_name user.get_username %}</strong>
+            {% if user.is_active and user.is_staff %}
+                <a href="{% url 'admin:password_change' %}"><i class="fas fa-key"></i> Şifre Değiştir</a>
+                <a href="{% url 'admin:logout' %}"><i class="fas fa-sign-out-alt"></i> Çıkış</a>
+            {% endif %}
+            </span>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block breadcrumbs %}
+{% if not is_popup %}
+<div class="breadcrumbs">
+    <div class="breadcrumbs-container">
+        <a href="{% url 'admin:index' %}">{% translate 'Ana Sayfa' %}</a>
+        {% if title %} &rsaquo; {{ title }}{% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block footer %}
+<div id="footer">
+    <div class="footer-container">
+        <div class="footer-copyright">
+            &copy; {% now "Y" %} EduPlus Eğitim Platformu. Tüm hakları saklıdır.
+        </div>
+        <div class="footer-links">
+            <a href="#"><i class="fas fa-question-circle"></i> Yardım</a>
+            <a href="#"><i class="fas fa-file-alt"></i> Dokümanlar</a>
+            <a href="#"><i class="fas fa-envelope"></i> İletişim</a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

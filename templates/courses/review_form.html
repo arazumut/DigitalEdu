@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Değerlendirme Düzenle - {{ review.course.title }} - EduPlus{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1>Değerlendirme Düzenle</h1>
+        <p>{{ review.course.title }} kursu için değerlendirmenizi güncelleyin</p>
+    </div>
+</section>
+
+<section class="review-form-section section-padding">
+    <div class="container">
+        <div class="review-form-container">
+            <div class="course-info">
+                <div class="course-image">
+                    {% if review.course.image %}
+                        <img src="{{ review.course.image.url }}" alt="{{ review.course.title }}">
+                    {% else %}
+                        <img src="{% static 'images/course-placeholder.jpg' %}" alt="{{ review.course.title }}">
+                    {% endif %}
+                </div>
+                
+                <div class="course-details">
+                    <h3>{{ review.course.title }}</h3>
+                    <p class="instructor">Eğitmen: {{ review.course.instructor.get_full_name }}</p>
+                </div>
+            </div>
+            
+            <form method="post" action="{% url 'edit_review' review.course.slug review.id %}" class="review-form">
+                {% csrf_token %}
+                
+                {% if messages %}
+                    <div class="messages">
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                
+                <div class="form-group">
+                    <label>Puanınız:</label>
+                    <div class="rating-select">
+                        <div class="star-rating">
+                            <input type="radio" id="star5" name="rating" value="5" {% if review.rating == 5 %}checked{% endif %} required>
+                            <label for="star5"><i class="{% if review.rating >= 5 %}fas{% else %}far{% endif %} fa-star"></i></label>
+                            
+                            <input type="radio" id="star4" name="rating" value="4" {% if review.rating == 4 %}checked{% endif %}>
+                            <label for="star4"><i class="{% if review.rating >= 4 %}fas{% else %}far{% endif %} fa-star"></i></label>
+                            
+                            <input type="radio" id="star3" name="rating" value="3" {% if review.rating == 3 %}checked{% endif %}>
+                            <label for="star3"><i class="{% if review.rating >= 3 %}fas{% else %}far{% endif %} fa-star"></i></label>
+                            
+                            <input type="radio" id="star2" name="rating" value="2" {% if review.rating == 2 %}checked{% endif %}>
+                            <label for="star2"><i class="{% if review.rating >= 2 %}fas{% else %}far{% endif %} fa-star"></i></label>
+                            
+                            <input type="radio" id="star1" name="rating" value="1" {% if review.rating == 1 %}checked{% endif %}>
+                            <label for="star1"><i class="{% if review.rating >= 1 %}fas{% else %}far{% endif %} fa-star"></i></label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="comment">Yorumunuz:</label>
+                    <textarea name="comment" id="comment" rows="6" required>{{ review.comment }}</textarea>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Değerlendirmeyi Güncelle</button>
+                    <a href="{% url 'course_detail' review.course.slug %}" class="btn btn-outline">İptal</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Yıldız derecelendirme işlevi
+        const starLabels = document.querySelectorAll('.star-rating label');
+        
+        starLabels.forEach(label => {
+            label.addEventListener('mouseover', function() {
+                // Yıldız hover efekti
+                let currentStar = this;
+                let previousStar = this.previousElementSibling;
+                
+                // Mevcut ve önceki tüm yıldızları doldur
+                while (currentStar) {
+                    currentStar.querySelector('i').classList.replace('far', 'fas');
+                    
+                    if (previousStar && previousStar.tagName === 'LABEL') {
+                        currentStar = previousStar;
+                        previousStar = previousStar.previousElementSibling;
+                    } else {
+                        break;
+                    }
+                }
+            });
+            
+            label.addEventListener('mouseout', function() {
+                // Yıldızları sıfırla
+                const selectedRating = document.querySelector('.star-rating input:checked');
+                const allStars = document.querySelectorAll('.star-rating label i');
+                
+                if (selectedRating) {
+                    // Seçili yıldızları doldur
+                    const rating = parseInt(selectedRating.value);
+                    allStars.forEach((star, index) => {
+                        if (index < rating) {
+                            star.classList.replace('far', 'fas');
+                        } else {
+                            star.classList.replace('fas', 'far');
+                        }
+                    });
+                } else {
+                    // Hiçbir yıldız seçili değilse tümünü boşalt
+                    allStars.forEach(star => {
+                        star.classList.replace('fas', 'far');
+                    });
+                }
+            });
+            
+            label.addEventListener('click', function() {
+                // Yıldız seçme
+                const input = this.previousElementSibling;
+                input.checked = true;
+                
+                // Tüm yıldızları sıfırla
+                const allStars = document.querySelectorAll('.star-rating label i');
+                allStars.forEach(star => {
+                    star.classList.replace('fas', 'far');
+                });
+                
+                // Seçili yıldıza kadar doldur
+                const rating = parseInt(input.value);
+                allStars.forEach((star, index) => {
+                    if (index < rating) {
+                        star.classList.replace('far', 'fas');
+                    }
+                });
+            });
+        });
+    });
+</script>
+{% endblock %} 

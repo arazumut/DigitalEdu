@@ -1,0 +1,252 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<style>
+    /* Animasyon için ek stiller */
+    .hero {
+        overflow: hidden;
+        background-image: url('{% static "images/hero.jpg" %}');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        position: relative;
+    }
+    
+    .hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1;
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 2;
+        color: blue;
+    }
+    .stat-item {
+        transition: all 0.5s ease;
+    }
+    .stat-item:hover {
+        transform: translateY(-10px);
+    }
+    .count-animation {
+        display: inline-block;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content" data-aos="fade-right" data-aos-duration="1000">
+                <h1>Yeni Nesil Dijital Eğitim Platformu</h1>
+                <p>Uzman eğitmenlerden istediğiniz zaman, istediğiniz yerde öğrenin. Kariyerinizi bir üst seviyeye taşıyın.</p>
+                <div class="hero-buttons">
+                    <a href="{% url 'course_list' %}" class="btn">Kurslara Gözat</a>
+                    <a href="{% url 'register' %}" class="btn btn-outline">Ücretsiz Deneme</a>
+                </div>
+            </div>
+            <img src="{% static 'images/hero-image.jpg' %}" alt="Online Eğitim" class="hero-image" data-aos="fade-left" data-aos-duration="1000">
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features section-padding" id="features">
+        <div class="container">
+            <h2 class="section-title text-center" data-aos="fade-up">Neden Biz?</h2>
+            <div class="features-container">
+                <div class="feature-card" data-aos="zoom-in" data-aos-delay="100">
+                    <div class="feature-icon">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
+                    <h3>Online Eğitim</h3>
+                    <p>Dilediğiniz yerden, dilediğiniz zaman eğitimlere katılın. İnternetin olduğu her yerde öğrenmeye devam edin.</p>
+                </div>
+                <div class="feature-card" data-aos="zoom-in" data-aos-delay="200">
+                    <div class="feature-icon">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <h3>Uzman Eğitmenler</h3>
+                    <p>Alanında uzman, sektör tecrübesi olan eğitmenlerden en güncel bilgileri öğrenin.</p>
+                </div>
+                <div class="feature-card" data-aos="zoom-in" data-aos-delay="300">
+                    <div class="feature-icon">
+                        <i class="fas fa-certificate"></i>
+                    </div>
+                    <h3>Sertifikalı Programlar</h3>
+                    <p>Tamamladığınız kurslar için geçerli sertifikalar alın ve kariyerinize değer katın.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Courses Section -->
+    <section class="courses section-padding" id="courses">
+        <div class="container">
+            <h2 class="section-title text-center" data-aos="fade-up">Popüler Kurslar</h2>
+            <p class="text-center" style="max-width: 700px; margin: 0 auto 50px;" data-aos="fade-up" data-aos-delay="100">En popüler kurslarımıza göz atın ve kendinizi geliştirmeye başlayın.</p>
+            <div class="courses-container">
+                {% for course in popular_courses %}
+                <div class="course-card" data-aos="fade-up" data-aos-delay="{{ forloop.counter|add:'150' }}">
+                    <div class="course-image">
+                        <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}">
+                    </div>
+                    <div class="course-content">
+                        <span class="course-category">{{ course.category.name }}</span>
+                        <h3 class="course-title">{{ course.title }}</h3>
+                        <div class="course-instructor">
+                            {% if course.instructor.profile_image %}
+                                <img src="{{ course.instructor.profile_image.url }}" alt="{{ course.instructor.get_full_name }}">
+                            {% else %}
+                                <img src="{% static 'images/default-profile.jpg' %}" alt="{{ course.instructor.get_full_name }}">
+                            {% endif %}
+                            <span>{{ course.instructor.get_full_name }}</span>
+                        </div>
+                        <div class="course-meta">
+                            <span><i class="far fa-clock"></i> {{ course.duration }} Saat</span>
+                            <span><i class="far fa-user"></i> {{ course.enrollments.count }} Öğrenci</span>
+                        </div>
+                        <div class="course-price">
+                            {% if course.discount_price %}
+                                <span class="original-price">₺{{ course.price }}</span>
+                                ₺{{ course.discount_price }}
+                            {% else %}
+                                ₺{{ course.price }}
+                            {% endif %}
+                        </div>
+                        <div class="course-actions" style="margin-top: 15px;">
+                            <a href="{% url 'course_detail' course.slug %}" class="btn btn-sm">Detaylar</a>
+                            <form method="post" action="{% url 'add_to_cart' course.id %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-secondary btn-sm">Sepete Ekle</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-center">Henüz kurs bulunmamaktadır.</p>
+                {% endfor %}
+            </div>
+            <div class="text-center" style="margin-top: 40px;" data-aos="fade-up">
+                <a href="{% url 'course_list' %}" class="btn">Tüm Kursları Görüntüle</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats">
+        <div class="container stats-container">
+            <div class="stat-item" data-aos="flip-left" data-aos-delay="100">
+                <h3><span class="count-animation" data-value="{{ student_count }}">0</span>+</h3>
+                <p>Mutlu Öğrenci</p>
+            </div>
+            <div class="stat-item" data-aos="flip-left" data-aos-delay="200">
+                <h3><span class="count-animation" data-value="{{ instructor_count }}">0</span>+</h3>
+                <p>Uzman Eğitmen</p>
+            </div>
+            <div class="stat-item" data-aos="flip-left" data-aos-delay="300">
+                <h3><span class="count-animation" data-value="{{ course_count }}">0</span>+</h3>
+                <p>Kurs Seçeneği</p>
+            </div>
+            <div class="stat-item" data-aos="flip-left" data-aos-delay="400">
+                <h3><span class="count-animation" data-value="98">0</span>%</h3>
+                <p>Memnuniyet Oranı</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials section-padding" id="testimonials">
+        <div class="container">
+            <h2 class="section-title text-center" data-aos="fade-up">Öğrenci Yorumları</h2>
+            <p class="text-center" style="max-width: 700px; margin: 0 auto 50px;" data-aos="fade-up" data-aos-delay="100">Öğrencilerimizin deneyimlerini okuyun</p>
+            <div class="testimonials-container">
+                {% for review in student_reviews %}
+                <div class="testimonial-card" data-aos="fade-up" data-aos-delay="{{ forloop.counter|add:'100' }}">
+                    <div class="testimonial-content">
+                        <p>{{ review.comment }}</p>
+                    </div>
+                    <div class="testimonial-author">
+                        {% if review.student.profile_image %}
+                            <img src="{{ review.student.profile_image.url }}" alt="{{ review.student.get_full_name }}">
+                        {% else %}
+                            <img src="{% static 'images/default-profile.jpg' %}" alt="{{ review.student.get_full_name }}">
+                        {% endif %}
+                        <div class="author-info">
+                            <h4>{{ review.student.get_full_name }}</h4>
+                            <p>{{ review.course.title }} öğrencisi</p>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-center">Henüz yorum bulunmamaktadır.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container" data-aos="zoom-in">
+            <h2>Öğrenmeye Hazır mısınız?</h2>
+            <p>Hemen kaydolun ve kariyerinizde bir adım öne geçin. İlk dersiniz ücretsiz!</p>
+            <a href="{% url 'register' %}" class="btn">Hemen Başla</a>
+        </div>
+    </section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script>
+    // AOS animasyon kütüphanesini başlat
+    AOS.init({
+        duration: 800,
+        once: true
+    });
+    
+    // Sayaç animasyonu
+    document.addEventListener('DOMContentLoaded', function() {
+        const countElements = document.querySelectorAll('.count-animation');
+        
+        function animateValue(element, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const value = Math.floor(progress * (end - start) + start);
+                element.textContent = value;
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+        
+        // İstatistik değerlerinin görünür olup olmadığını kontrol et
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const target = entry.target;
+                    const value = parseInt(target.getAttribute('data-value'));
+                    animateValue(target, 0, value, 2000);
+                    observer.unobserve(target);
+                }
+            });
+        }, {
+            threshold: 0.5
+        });
+        
+        countElements.forEach(element => {
+            observer.observe(element);
+        });
+    });
+</script>
+{% endblock %} 

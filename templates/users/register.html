@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Kaydol - EduPlus{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1>Yeni Hesap Oluştur</h1>
+        <p>EduPlus'a kaydolarak eğitim dünyasına katılın</p>
+    </div>
+</section>
+
+<section class="auth-section section-padding">
+    <div class="container">
+        <div class="auth-container">
+            <div class="auth-form-container">
+                <div class="auth-header">
+                    <h2>Yeni Hesap Oluştur</h2>
+                    <p>Hemen kaydolun ve binlerce kursa erişim sağlayın</p>
+                </div>
+                
+                {% if messages %}
+                    <div class="messages">
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                
+                <form method="post" action="{% url 'register' %}" class="auth-form">
+                    {% csrf_token %}
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="first_name">Ad *</label>
+                            <input type="text" id="first_name" name="first_name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="last_name">Soyad *</label>
+                            <input type="text" id="last_name" name="last_name" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="username">Kullanıcı Adı *</label>
+                        <input type="text" id="username" name="username" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">E-posta *</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="password1">Şifre *</label>
+                            <input type="password" id="password1" name="password1" required>
+                            <small>En az 8 karakter uzunluğunda olmalıdır.</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="password2">Şifre Tekrar *</label>
+                            <input type="password" id="password2" name="password2" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group user-type-selection">
+                        <label>Hesap Türü *</label>
+                        <div class="user-type-options">
+                            <div class="user-type-option">
+                                <input type="radio" id="student" name="user_type" value="student" checked>
+                                <label for="student" class="user-type-label">
+                                    <div class="user-type-icon">
+                                        <i class="fas fa-user-graduate"></i>
+                                    </div>
+                                    <div class="user-type-info">
+                                        <h4>Öğrenci</h4>
+                                        <p>Kurslara kaydolun ve öğrenin</p>
+                                    </div>
+                                </label>
+                            </div>
+                            
+                            <div class="user-type-option">
+                                <input type="radio" id="instructor" name="user_type" value="instructor">
+                                <label for="instructor" class="user-type-label">
+                                    <div class="user-type-icon">
+                                        <i class="fas fa-chalkboard-teacher"></i>
+                                    </div>
+                                    <div class="user-type-info">
+                                        <h4>Eğitmen</h4>
+                                        <p>Kurs oluşturun ve öğretin</p>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group form-checkbox">
+                        <input type="checkbox" id="terms" name="terms" required>
+                        <label for="terms">Kullanım Şartları ve Gizlilik Politikasını kabul ediyorum *</label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary btn-full">Kaydol</button>
+                    </div>
+                    
+                    <div class="auth-footer">
+                        <p>Zaten bir hesabınız var mı? <a href="{% url 'login' %}">Giriş Yap</a></p>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="auth-info">
+                <h3>EduPlus Ailesine Katılın</h3>
+                <p>Kaydolarak hemen şunlara erişin:</p>
+                <ul>
+                    <li><i class="fas fa-check"></i> 50.000+ yüksek kaliteli kurs</li>
+                    <li><i class="fas fa-check"></i> Uzman eğitmenlerden öğrenme fırsatı</li>
+                    <li><i class="fas fa-check"></i> Her zaman, her yerden erişim</li>
+                    <li><i class="fas fa-check"></i> Tamamlama sertifikaları</li>
+                </ul>
+                <div class="auth-image">
+                    <img src="{% static 'images/register-illustration.svg' %}" alt="Register">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Hesap türü seçim kutuları için işlevsellik
+        const userTypeOptions = document.querySelectorAll('.user-type-option input');
+        const userTypeLabels = document.querySelectorAll('.user-type-label');
+        
+        userTypeOptions.forEach(option => {
+            option.addEventListener('change', function() {
+                // Tüm etiketlerden active sınıfını kaldır
+                userTypeLabels.forEach(label => {
+                    label.classList.remove('active');
+                });
+                
+                // Seçili olan etiketini active yap
+                if (this.checked) {
+                    this.parentElement.querySelector('.user-type-label').classList.add('active');
+                }
+            });
+            
+            // Sayfa yüklendiğinde seçili olan varsa onu active yap
+            if (option.checked) {
+                option.parentElement.querySelector('.user-type-label').classList.add('active');
+            }
+        });
+        
+        // Şifre eşleşme kontrolü
+        const password1 = document.getElementById('password1');
+        const password2 = document.getElementById('password2');
+        const form = document.querySelector('.auth-form');
+        
+        form.addEventListener('submit', function(e) {
+            if (password1.value !== password2.value) {
+                e.preventDefault();
+                alert('Şifreler eşleşmiyor!');
+                password2.focus();
+            }
+            
+            if (password1.value.length < 8) {
+                e.preventDefault();
+                alert('Şifreniz en az 8 karakter uzunluğunda olmalıdır.');
+                password1.focus();
+            }
+        });
+    });
+</script>
+{% endblock %} 

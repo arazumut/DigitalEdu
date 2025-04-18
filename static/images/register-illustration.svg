@@ -1,0 +1,48 @@
+<svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .st0{fill:#F5F7FA;}
+    .st1{fill:#4A6BFF;}
+    .st2{fill:#FFFFFF;}
+    .st3{fill:#2C3E50;}
+    .st4{fill:#FF6B6B;}
+    .st5{fill:#28A745;}
+  </style>
+  
+  <!-- Background -->
+  <rect class="st0" width="400" height="300" rx="20"/>
+  
+  <!-- Document -->
+  <rect class="st2" x="120" y="50" width="160" height="200" rx="5"/>
+  <line x1="140" y1="80" x2="260" y2="80" stroke="#4A6BFF" stroke-width="2"/>
+  <line x1="140" y1="110" x2="260" y2="110" stroke="#E5E5E5" stroke-width="2"/>
+  <line x1="140" y1="140" x2="260" y2="140" stroke="#E5E5E5" stroke-width="2"/>
+  <line x1="140" y1="170" x2="260" y2="170" stroke="#E5E5E5" stroke-width="2"/>
+  <line x1="140" y1="200" x2="200" y2="200" stroke="#E5E5E5" stroke-width="2"/>
+  
+  <!-- Form Elements -->
+  <rect class="st0" x="140" y="90" width="120" height="15" rx="3"/>
+  <rect class="st0" x="140" y="120" width="120" height="15" rx="3"/>
+  <rect class="st0" x="140" y="150" width="120" height="15" rx="3"/>
+  <rect class="st0" x="140" y="180" width="120" height="15" rx="3"/>
+  
+  <!-- Submit Button -->
+  <rect class="st1" x="170" y="220" width="60" height="20" rx="10"/>
+  <text x="200" y="234" font-family="Arial" font-size="10" fill="white" text-anchor="middle">KAYDOL</text>
+  
+  <!-- Person silhouette - Student -->
+  <circle class="st1" cx="60" cy="100" r="20"/>
+  <path class="st1" d="M60,130 C40,130 25,145 20,165 L100,165 C95,145 80,130 60,130z"/>
+  <rect class="st2" x="45" y="95" width="30" height="10" rx="5"/>
+  
+  <!-- Person silhouette - Teacher -->
+  <circle class="st4" cx="340" cy="100" r="20"/>
+  <path class="st4" d="M340,130 C320,130 305,145 300,165 L380,165 C375,145 360,130 340,130z"/>
+  <rect class="st2" x="330" y="90" width="20" height="20"/>
+  
+  <!-- Success Checkmark -->
+  <circle class="st5" cx="340" cy="220" r="25"/>
+  <path class="st2" d="M330,220 L340,230 L355,215" stroke="white" stroke-width="4" fill="none"/>
+  
+  <!-- Star Icon -->
+  <path class="st4" d="M60,220 L65,210 L75,208 L67,200 L69,190 L60,195 L51,190 L53,200 L45,208 L55,210 Z"/>
+</svg> 

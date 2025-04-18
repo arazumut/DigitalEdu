@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ instructor.get_full_name }} Eğitmenin Kursları - EduPlus{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1>{{ instructor.get_full_name }} - Eğitmen Profili</h1>
+        <p>Eğitmenin tüm kursları</p>
+    </div>
+</section>
+
+<section class="instructor-profile-section section-padding">
+    <div class="container">
+        <div class="instructor-profile-header">
+            <div class="instructor-avatar">
+                {% if instructor.profile_image %}
+                    <img src="{{ instructor.profile_image.url }}" alt="{{ instructor.get_full_name }}">
+                {% else %}
+                    <img src="{% static 'images/profile-placeholder.jpg' %}" alt="{{ instructor.get_full_name }}">
+                {% endif %}
+            </div>
+            
+            <div class="instructor-info">
+                <h2>{{ instructor.get_full_name }}</h2>
+                <p class="instructor-title">{{ instructor.title }}</p>
+                
+                <div class="instructor-stats">
+                    <div class="stat-item">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        <span>{{ courses.count }} Kurs</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-users"></i>
+                        <span>{{ instructor.total_students }} Öğrenci</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-star"></i>
+                        <span>{{ instructor.average_rating|default:"0" }} Ortalama Puan</span>
+                    </div>
+                </div>
+                
+                <div class="instructor-bio">
+                    {{ instructor.bio|linebreaks }}
+                </div>
+                
+                <div class="instructor-social">
+                    {% if instructor.website %}
+                        <a href="{{ instructor.website }}" target="_blank" class="social-link"><i class="fas fa-globe"></i></a>
+                    {% endif %}
+                    {% if instructor.linkedin %}
+                        <a href="{{ instructor.linkedin }}" target="_blank" class="social-link"><i class="fab fa-linkedin"></i></a>
+                    {% endif %}
+                    {% if instructor.twitter %}
+                        <a href="{{ instructor.twitter }}" target="_blank" class="social-link"><i class="fab fa-twitter"></i></a>
+                    {% endif %}
+                    {% if instructor.github %}
+                        <a href="{{ instructor.github }}" target="_blank" class="social-link"><i class="fab fa-github"></i></a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructor-courses-section">
+            <h3>{{ instructor.first_name }}'ın Kursları</h3>
+            
+            {% if courses %}
+                <div class="courses-container">
+                    {% for course in courses %}
+                        <div class="course-card">
+                            <div class="course-image">
+                                {% if course.image %}
+                                    <img src="{{ course.image.url }}" alt="{{ course.title }}">
+                                {% else %}
+                                    <img src="{% static 'images/course-placeholder.jpg' %}" alt="{{ course.title }}">
+                                {% endif %}
+                            </div>
+                            <div class="course-content">
+                                <span class="course-category">{{ course.category.name }}</span>
+                                <h3 class="course-title">
+                                    <a href="{% url 'course_detail' course.slug %}">{{ course.title }}</a>
+                                </h3>
+                                <div class="course-meta">
+                                    <span><i class="far fa-clock"></i> {{ course.duration }} Saat</span>
+                                    <span><i class="far fa-user"></i> {{ course.enrollments.count }} Öğrenci</span>
+                                </div>
+                                <div class="course-rating">
+                                    <div class="stars">
+                                        {% with avg_rating=course.average_rating|default:0 %}
+                                            {% for i in "12345" %}
+                                                {% if forloop.counter <= avg_rating %}
+                                                    <i class="fas fa-star"></i>
+                                                {% elif forloop.counter <= avg_rating|add:"0.5" %}
+                                                    <i class="fas fa-star-half-alt"></i>
+                                                {% else %}
+                                                    <i class="far fa-star"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                            <span>({{ course.reviews.count }})</span>
+                                        {% endwith %}
+                                    </div>
+                                </div>
+                                <div class="course-price">₺{{ course.price }}</div>
+                                <a href="{% url 'course_detail' course.slug %}" class="btn btn-outline">Detaylar</a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-courses-found">
+                    <p>Bu eğitmenin henüz kursu bulunmamaktadır.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %} 
