@@ -131,4 +131,19 @@ python manage.py loaddata fixtures/demo_data.json
    ```bash
    git push origin yeni-ozellik
    ```
+<img width="1710" alt="Ekran Resmi 2025-04-18 22 06 18" src="https://github.com/user-attachments/assets/9eb6a30a-f434-4778-a025-74556ea1a93a" />
+
+<img width="1710" alt="Ekran Resmi 2025-04-18 22 06 49" src="https://github.com/user-attachments/assets/4c6891c1-956c-42c2-b15c-ce97757175fc" />
+
+<img width="1710" alt="Ekran Resmi 2025-04-18 22 06 38" src="https://github.com/user-attachments/assets/2d30fada-255e-4b7c-85ad-5addc09e9f10" />
+
+<img width="1710" alt="Ekran Resmi 2025-04-18 22 06 33" src="https://github.com/user-attachments/assets/988577b0-f12f-4d76-9f18-9a12d181fd39" />
+
+
+
+
+
+
+
+
 
